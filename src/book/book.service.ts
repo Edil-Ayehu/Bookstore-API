@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Book } from './entities/book_entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,7 +12,18 @@ export class BookService {
         private readonly repo: Repository<Book>
     ) {}
 
-    create(createBookDto:CreateBookDto) {
+    async create(createBookDto:CreateBookDto) {
+    // Check if a book with the same title and author exists
+    const existing = await this.repo.findOne({
+      where: { title: createBookDto.title, author: createBookDto.author },
+      withDeleted: false, // Ignores soft-deleted entries
+    });
+
+        if (existing) {
+      throw new BadRequestException(
+        `Book titled "${createBookDto.title}" by "${createBookDto.author}" already exists.`,
+      );
+    }
        const newBook = this.repo.create(createBookDto)
        return this.repo.save(newBook)
     }
