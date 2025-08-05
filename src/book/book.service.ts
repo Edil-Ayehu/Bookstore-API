@@ -19,7 +19,7 @@ export class BookService {
       withDeleted: false, // Ignores soft-deleted entries
     });
 
-        if (existing) {
+    if (existing) {
       throw new BadRequestException(
         `Book titled "${createBookDto.title}" by "${createBookDto.author}" already exists.`,
       );

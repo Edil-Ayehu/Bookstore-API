@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from 
 import { BookService } from './book.service';
 import { CreateBookDto } from './dtos/create-book-dto';
 import { UpdateBookDto } from './dtos/update-book-dto';
+import { ResponseDto } from 'src/common/dto/response-dto';
 
 @Controller('book')
 export class BookController {
@@ -10,10 +11,11 @@ export class BookController {
     ) {}
 
     @Post('create')
-    create(
+    async create(
         @Body() createBookDto:CreateBookDto
     ) {
-      return this.bookService.create(createBookDto)
+      const book = await this.bookService.create(createBookDto)
+      return new ResponseDto(book, "Book created successfully")
     }
 
     @Get('find-all')
