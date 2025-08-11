@@ -14,6 +14,9 @@ export class CreateBookDto {
     description:string
 
     @IsNumber()
+    categoryId:number
+
+    @IsNumber()
     @IsNotEmpty()
     price:number
 }

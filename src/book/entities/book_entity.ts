@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
+import { Category } from "src/category/entities/category_entity";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
 
 @Entity()
 @Unique(['title', 'author']) // This enforces title+author combo uniqueness
@@ -17,6 +18,9 @@ export class Book {
 
     @Column('decimal')
     price:number
+
+    @ManyToOne(()=> Category, (category)=> category.books, {eager: true})
+    category: Category
 
     @CreateDateColumn()
     createdAt:Date

@@ -4,15 +4,21 @@ import { Book } from './entities/book_entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateBookDto } from './dtos/create-book-dto';
 import { UpdateBookDto } from './dtos/update-book-dto';
+import { Category } from 'src/category/entities/category_entity';
 
 @Injectable()
 export class BookService {
     constructor(
         @InjectRepository(Book)
-        private readonly repo: Repository<Book>
+        private readonly repo: Repository<Book>,
+
+        @InjectRepository(Category)
+        private readonly categoryRepository: Repository<Category>
     ) {}
 
     async create(createBookDto:CreateBookDto) {
+      const category = await this.categoryRepository.findOne({where: {id: createBookDto.categoryId}})
+      if(!category) throw new BadRequestException("Invalid Category ID!")
     // Check if a book with the same title and author exists
     const existing = await this.repo.findOne({
       where: { title: createBookDto.title, author: createBookDto.author },
@@ -24,7 +30,7 @@ export class BookService {
         `Book titled "${createBookDto.title}" by "${createBookDto.author}" already exists.`,
       );
     }
-       const newBook = this.repo.create(createBookDto)
+       const newBook = this.repo.create({...createBookDto, category})
        return this.repo.save(newBook)
     }
 
