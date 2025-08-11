@@ -19,8 +19,9 @@ export class BookController {
     }
 
     @Get('find-all')
-    findAll() {
-        return this.bookService.findAll()
+    async findAll() {
+        const books = await this.bookService.findAll()
+        return new ResponseDto(books, "Books fetched successfully.")
     }
 
     @Get(':id')
