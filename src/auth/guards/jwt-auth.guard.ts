@@ -1,4 +1,4 @@
-import { ExecutionContext, Injectable } from '@nestjs/common';
+import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from 'src/common/decorators/public.decorator';
@@ -18,8 +18,23 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
             ]);
     
         if (isPublic) return true;
+
+        const request = context.switchToHttp().getRequest();
+        const authHeader = request.headers['authorization'];
+        if(!authHeader){
+            throw new UnauthorizedException("Authorization header is missing!")
+        }
     
         return super.canActivate(context);
 
         }
+
+    handleRequest(err, user, info) {
+        if(err || !user) {
+            throw err || new UnauthorizedException(info?.message || "Invalid or expired token")
+        }
+
+        return user;
+        
+    }
 }
