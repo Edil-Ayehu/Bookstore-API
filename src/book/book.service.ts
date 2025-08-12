@@ -10,7 +10,7 @@ import { Category } from 'src/category/entities/category_entity';
 export class BookService {
     constructor(
         @InjectRepository(Book)
-        private readonly repo: Repository<Book>,
+        private readonly bookrepo: Repository<Book>,
 
         @InjectRepository(Category)
         private readonly categoryRepository: Repository<Category>
@@ -19,8 +19,9 @@ export class BookService {
     async create(createBookDto:CreateBookDto) {
       const category = await this.categoryRepository.findOne({where: {id: createBookDto.categoryId}})
       if(!category) throw new BadRequestException("Invalid Category ID!")
+        
     // Check if a book with the same title and author exists
-    const existing = await this.repo.findOne({
+    const existing = await this.bookrepo.findOne({
       where: { title: createBookDto.title, author: createBookDto.author },
       withDeleted: false, // Ignores soft-deleted entries
     });
@@ -30,31 +31,36 @@ export class BookService {
         `Book titled "${createBookDto.title}" by "${createBookDto.author}" already exists.`,
       );
     }
-       const newBook = this.repo.create({...createBookDto, category})
-       return this.repo.save(newBook)
+       const newBook = this.bookrepo.create({...createBookDto, category})
+       return this.bookrepo.save(newBook)
     }
 
     findAll() {
-        return this.repo.find()
+        return this.bookrepo.find()
     }
 
-    findOne(id:number) {
-        const book = this.repo.findOne({where: {id}})
+    async findOne(id:number) {
+        const book = await this.bookrepo.findOne({where: {id}})
         if(!book) throw new NotFoundException(`Book with id ${id} not found`);
 
         return book
     }
 
     async update(id:number, updateBookDto:UpdateBookDto) {
-        const book = this.repo.findOne({where: {id}})
+        const book = await this.bookrepo.findOne({where: {id}})
         if(!book) throw new NotFoundException(`Book with id ${id} not found`);
 
         const updatedBook = Object.assign(book,updateBookDto)
-        return this.repo.save(updatedBook)
+        return this.bookrepo.save(updatedBook)
     }
 
-    remove(id: number) {
-        const book = this.findOne(id)
-        return this.repo.softDelete(id)
+    async remove(id: number) {
+        const book = await this.findOne(id)
+        await this.bookrepo.softDelete(id)
+
+        return {
+          deleted: true,
+          id,
+        }
     }
 }

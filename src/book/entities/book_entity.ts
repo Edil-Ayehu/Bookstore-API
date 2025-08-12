@@ -2,7 +2,6 @@ import { Category } from "src/category/entities/category_entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
 
 @Entity()
-@Unique(['title', 'author']) // This enforces title+author combo uniqueness
 export class Book {
     @PrimaryGeneratedColumn()
     id:number

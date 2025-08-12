@@ -15,7 +15,7 @@ export class BookController {
     ) {}
 
     @Post('create')
-    @UseGuards(RolesGuard) // ✅ Require JWT + role check
+    @UseGuards(RolesGuard) // ✅ Role check
     @Roles(UserRole.ADMIN)                   // ✅ Only admins allowed
     async create(
         @Body() createBookDto:CreateBookDto
@@ -31,24 +31,27 @@ export class BookController {
     }
 
     @Get(':id')
-    findOne(@Param('id', ParseIntPipe) id:number) {
-        return this.bookService.findOne(id)
+    async findOne(@Param('id', ParseIntPipe) id:number) {
+        const book = await this.bookService.findOne(id)
+        return new ResponseDto(book, 'Book fetched successfully!')
     }
 
     @Patch(':id')
-    @UseGuards(RolesGuard) // ✅ Require JWT + role check
+    @UseGuards(RolesGuard) // ✅ Role check
     @Roles(UserRole.ADMIN)                   // ✅ Only admins allowed
-    update(
+    async update(
         @Param('id', ParseIntPipe) id: number,
         @Body() updateBookDto:UpdateBookDto,
     ){
-        return this.bookService.update(id,updateBookDto)
+        const result = await this.bookService.update(id,updateBookDto)
+        return new ResponseDto(result, "Book updated Successfully!")
     }
 
     @Delete(':id')
-    @UseGuards(RolesGuard) // ✅ Require JWT + role check
+    @UseGuards(RolesGuard) // ✅ Role check
     @Roles(UserRole.ADMIN)                   // ✅ Only admins allowed
-    remove(@Param('id', ParseIntPipe) id:number) {
-        return this.bookService.remove(id)
+    async remove(@Param('id', ParseIntPipe) id:number) {
+        const result = await this.bookService.remove(id)
+        return new ResponseDto(result, "Book Deleted Successfully!")
     }
 }
