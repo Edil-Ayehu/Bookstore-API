@@ -15,8 +15,8 @@ export class BookController {
     ) {}
 
     @Post('create')
-    // @UseGuards(AuthGuard('jwt'), RolesGuard) // ✅ Require JWT + role check
-    // @Roles(UserRole.ADMIN)                   // ✅ Only admins allowed
+    @UseGuards(RolesGuard) // ✅ Require JWT + role check
+    @Roles(UserRole.ADMIN)                   // ✅ Only admins allowed
     async create(
         @Body() createBookDto:CreateBookDto
     ) {
@@ -36,8 +36,8 @@ export class BookController {
     }
 
     @Patch(':id')
-    // @UseGuards(AuthGuard('jwt'), RolesGuard) // ✅ Require JWT + role check
-    // @Roles(UserRole.ADMIN)                   // ✅ Only admins allowed
+    @UseGuards(RolesGuard) // ✅ Require JWT + role check
+    @Roles(UserRole.ADMIN)                   // ✅ Only admins allowed
     update(
         @Param('id', ParseIntPipe) id: number,
         @Body() updateBookDto:UpdateBookDto,
@@ -46,8 +46,8 @@ export class BookController {
     }
 
     @Delete(':id')
-    // @UseGuards(AuthGuard('jwt'), RolesGuard) // ✅ Require JWT + role check
-    // @Roles(UserRole.ADMIN)                   // ✅ Only admins allowed
+    @UseGuards(RolesGuard) // ✅ Require JWT + role check
+    @Roles(UserRole.ADMIN)                   // ✅ Only admins allowed
     remove(@Param('id', ParseIntPipe) id:number) {
         return this.bookService.remove(id)
     }
