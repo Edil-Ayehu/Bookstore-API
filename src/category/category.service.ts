@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { Like, Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Category } from './entities/category_entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateCategoryDto } from './dto/create_category_dto';
@@ -14,7 +14,10 @@ export class CategoryService {
     ){}
 
     async create(createCategoryDto:CreateCategoryDto) {
-        const exists = await this.categoryRepository.findOne({where: {name: createCategoryDto.name}});
+        const exists = await this.categoryRepository.findOne({
+            where: {name: createCategoryDto.name},
+            withDeleted: false
+        });
 
         if(exists) throw new BadRequestException(`Category ${createCategoryDto.name} Already Exist`);
 
@@ -25,7 +28,7 @@ export class CategoryService {
         const {page, limit} = paginationDto;
 
         const where = name 
-        ? { name: Like(`%${name}%`) } // partial match on category name
+        ? { name: ILike(`%${name}%`) } // partial match on category name
         : {};
 
         const [data, total] = await this.categoryRepository.findAndCount({
