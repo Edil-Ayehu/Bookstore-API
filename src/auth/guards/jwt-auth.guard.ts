@@ -30,11 +30,20 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         }
 
     handleRequest(err, user, info) {
-        if(err || !user) {
-            throw err || new UnauthorizedException(info?.message || "Invalid or expired token")
-        }
+    if (err || !user) {
+      // Customize message for token expiration
+      if (info?.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('Your session has expired. Please log in again.');
+      }
 
-        return user;
-        
+      // Customize message for invalid token
+      if (info?.name === 'JsonWebTokenError') {
+        throw new UnauthorizedException('Invalid token. Please log in again.');
+      }
+
+      throw err || new UnauthorizedException('Authentication failed.');
     }
+
+    return user;
+  }
 }

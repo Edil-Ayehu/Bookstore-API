@@ -1,36 +1,51 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create_category_dto';
 import { UpdateCategoryDto } from './dto/update_category_dto';
+import { RolesGuard } from 'src/auth/roles_guard';
+import { Roles } from 'src/auth/roles_decorator';
+import { UserRole } from 'src/user/entities/user_entity';
+import { ResponseDto } from 'src/common/dto/response-dto';
 
 @Controller('category')
 export class CategoryController {
     constructor(
         private readonly categoryService: CategoryService
     ) {}
-
+   
     @Post('create')
-    create(@Body() createCategoryDto:CreateCategoryDto) {
-        return this.categoryService.create(createCategoryDto)
+    @UseGuards(RolesGuard) // ✅ Role check
+    @Roles(UserRole.ADMIN) // ✅ Only admins allowed
+    async create(@Body() createCategoryDto:CreateCategoryDto) {
+        const result = await this.categoryService.create(createCategoryDto)
+        return new ResponseDto(result, "Category created successfully!")
     }
 
     @Get()
-    findAll() {
-        return this.categoryService.findAll()
+    async findAll() {
+        const books = await this.categoryService.findAll()
+        return new ResponseDto(books, "Books fetched successfully!")
     }
 
     @Get(':id')
-    findOne(@Param('id', ParseIntPipe) id: number) {
-        return this.categoryService.findOne(id)
+    async findOne(@Param('id', ParseIntPipe) id: number) {
+        const category = await this.categoryService.findOne(id)
+        return new ResponseDto(category,"Category fetched successfully!")
     }
 
     @Patch(':id')
-    update(@Param('id', ParseIntPipe)id :number, @Body() updateCategoryDto:UpdateCategoryDto) {
-        return this.categoryService.update(id, updateCategoryDto)
+    @UseGuards(RolesGuard) // ✅ Role check
+    @Roles(UserRole.ADMIN) // ✅ Only admins allowed
+    async update(@Param('id', ParseIntPipe)id :number, @Body() updateCategoryDto:UpdateCategoryDto) {
+        const result = await this.categoryService.update(id, updateCategoryDto)
+        return new ResponseDto(result, 'Category updated Successfully!')
     }
 
     @Delete(':id')
-    remove(@Param('id', ParseIntPipe) id:number) {
-        return this.categoryService.remove(id)
+    @UseGuards(RolesGuard) // ✅ Role check
+    @Roles(UserRole.ADMIN) // ✅ Only admins allowed
+    async remove(@Param('id', ParseIntPipe) id:number) {
+        const result = await this.categoryService.remove(id)
+        return new ResponseDto(result, 'Category Deleted Successfully!')
     }
 }
