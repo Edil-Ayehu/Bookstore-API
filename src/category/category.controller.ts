@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create_category_dto';
 import { UpdateCategoryDto } from './dto/update_category_dto';
@@ -6,6 +6,7 @@ import { RolesGuard } from 'src/auth/roles_guard';
 import { Roles } from 'src/auth/roles_decorator';
 import { UserRole } from 'src/user/entities/user_entity';
 import { ResponseDto } from 'src/common/dto/response-dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('category')
 export class CategoryController {
@@ -22,8 +23,11 @@ export class CategoryController {
     }
 
     @Get()
-    async findAll() {
-        const books = await this.categoryService.findAll()
+    async findAll(
+        @Query() paginationDto: PaginationDto,
+        @Query('name') name?:string,
+    ) {
+        const books = await this.categoryService.findAll(paginationDto, name)
         return new ResponseDto(books, "Books fetched successfully!")
     }
 

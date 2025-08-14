@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Category } from './entities/category_entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateCategoryDto } from './dto/create_category_dto';
 import { UpdateCategoryDto } from './dto/update_category_dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class CategoryService {
@@ -20,8 +21,26 @@ export class CategoryService {
         return await this.categoryRepository.save(createCategoryDto);
     }
 
-    findAll() {
-        return this.categoryRepository.find({relations: ['books']})
+    async findAll(paginationDto: PaginationDto, name?: string) {
+        const {page, limit} = paginationDto;
+
+        const where = name 
+        ? { name: Like(`%${name}%`) } // partial match on category name
+        : {};
+
+        const [data, total] = await this.categoryRepository.findAndCount({
+            where,
+            skip: (page -1) * limit,
+            take: limit,
+            order: { createdAt: 'DESC'}
+        });
+
+        return {
+            data,
+            total,
+            page,
+            limit,
+        }
     }
 
     async findOne(id:number) {
