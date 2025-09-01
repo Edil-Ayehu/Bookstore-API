@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { BookService } from './book.service';
 import { CreateBookDto } from './dtos/create-book-dto';
 import { UpdateBookDto } from './dtos/update-book-dto';
@@ -7,6 +7,7 @@ import { RolesGuard } from 'src/auth/roles_guard';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles } from 'src/auth/roles_decorator';
 import { UserRole } from 'src/user/entities/user_entity';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('book')
 export class BookController {
@@ -25,8 +26,10 @@ export class BookController {
     }
 
     @Get('find-all')
-    async findAll() {
-        const books = await this.bookService.findAll()
+    async findAll(
+        @Query() paginationDto:PaginationDto
+    ) {
+        const books = await this.bookService.findAll(paginationDto)
         return new ResponseDto(books, "Books fetched successfully.")
     }
 

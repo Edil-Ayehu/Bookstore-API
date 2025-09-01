@@ -25,9 +25,8 @@ export class CategoryController {
     @Get()
     async findAll(
         @Query() paginationDto: PaginationDto,
-        @Query('name') name?:string,
     ) {
-        const books = await this.categoryService.findAll(paginationDto, name)
+        const books = await this.categoryService.findAll(paginationDto)
         return new ResponseDto(books, "Books fetched successfully!")
     }
 

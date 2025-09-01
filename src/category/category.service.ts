@@ -24,8 +24,8 @@ export class CategoryService {
         return await this.categoryRepository.save(createCategoryDto);
     }
 
-    async findAll(paginationDto: PaginationDto, name?: string) {
-        const {page, limit} = paginationDto;
+    async findAll(paginationDto: PaginationDto) {
+        const {page, limit, name} = paginationDto;
 
         const where = name 
         ? { name: ILike(`%${name}%`) } // partial match on category name
@@ -43,6 +43,7 @@ export class CategoryService {
             total,
             page,
             limit,
+            totalPages: Math.ceil(total / limit),
         }
     }
 

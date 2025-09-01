@@ -1,10 +1,11 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Book } from './entities/book_entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateBookDto } from './dtos/create-book-dto';
 import { UpdateBookDto } from './dtos/update-book-dto';
 import { Category } from 'src/category/entities/category_entity';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class BookService {
@@ -35,8 +36,34 @@ export class BookService {
        return this.bookrepo.save(newBook)
     }
 
-    findAll() {
-        return this.bookrepo.find()
+    async findAll(paginationDto:PaginationDto) {
+      const {page, limit,title, category} = paginationDto;
+
+      // Build dynamic where conditions
+      const where: any = {};
+
+      if(title) {
+        where.title = ILike(`%${title}`); // case-insensitive partial match
+      }
+
+      if(category) {
+        where.category = {id: category} // filter by category ID
+      }
+
+        const [docs, total] = await this.bookrepo.findAndCount({
+          where,
+          skip: (page - 1) * limit,
+          take: limit,
+          order: {createdAt: 'DESC'}
+        });
+
+        return {
+          docs,
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        }
     }
 
     async findOne(id:number) {

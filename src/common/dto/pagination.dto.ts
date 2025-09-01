@@ -16,5 +16,14 @@ export class PaginationDto {
 
     @IsOptional()
     @IsString()
-    name?:string // ✅ Allow category name filtering
+    name?:string // ✅ // filter category by name
+
+    @IsOptional()
+    @IsString()
+    title?:string // ✅ // filter book by title
+
+    @IsOptional()
+    @IsNumber()
+    @Type(()=> Number)
+    category?:number // ✅ // filter by category ID
 }
